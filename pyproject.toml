@@ -1,0 +1,35 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "run-insights"
+version = "1.0.0"
+description = "An AI running-activity analyzer — a deterministic pass computes the split, pace fade, HR decoupling and effort type from a run's per-km splits, then an LLM drafts short coaching feedback grounded in exactly those numbers (a grounding filter drops any fabricated stat), with a planted-pattern eval harness. Illustrative demo, not coaching or medical advice."
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+authors = [{ name = "Kareem Ghazal" }]
+dependencies = [
+    "anthropic>=0.39",
+    "pydantic>=2.5",
+    "python-dotenv>=1.0",
+    "typer>=0.12",
+    "rich>=13.7",
+    "fastapi>=0.110",
+    "uvicorn>=0.29",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=8.0"]
+
+[project.scripts]
+run-insights = "run_insights.cli:app"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/run_insights"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src", "tests", "evals"]
+testpaths = ["tests"]
+addopts = "-q"

@@ -1,0 +1,62 @@
+[
+  {
+    "name": "positive-split-with-fade",
+    "run": {
+      "splits": [
+        {"km": 1, "pace": "4:58", "hr": 150},
+        {"km": 2, "pace": "5:00", "hr": 152},
+        {"km": 3, "pace": "5:04", "hr": 154},
+        {"km": 4, "pace": "5:08", "hr": 156},
+        {"km": 5, "pace": "5:20", "hr": 159},
+        {"km": 6, "pace": "5:28", "hr": 161},
+        {"km": 7, "pace": "5:36", "hr": 163},
+        {"km": 8, "pace": "5:44", "hr": 165}
+      ],
+      "distance_km": 8.0,
+      "elevation_m": 40.0
+    },
+    "expect_flags": true,
+    "planted_kinds": ["positive_split", "pace_fade"],
+    "note": "Went out too fast: the second half slows and the last km fades hard."
+  },
+  {
+    "name": "hr-drift-decoupling",
+    "run": {
+      "splits": [
+        {"km": 1, "pace": "5:08", "hr": 150},
+        {"km": 2, "pace": "5:10", "hr": 153},
+        {"km": 3, "pace": "5:09", "hr": 156},
+        {"km": 4, "pace": "5:10", "hr": 159},
+        {"km": 5, "pace": "5:11", "hr": 164},
+        {"km": 6, "pace": "5:10", "hr": 168},
+        {"km": 7, "pace": "5:12", "hr": 171},
+        {"km": 8, "pace": "5:11", "hr": 174}
+      ],
+      "distance_km": 8.0,
+      "elevation_m": 30.0
+    },
+    "expect_flags": true,
+    "planted_kinds": ["hr_decoupling"],
+    "note": "Pace held steady but heart rate climbed through the run — aerobic decoupling."
+  },
+  {
+    "name": "clean-well-paced",
+    "run": {
+      "splits": [
+        {"km": 1, "pace": "5:22", "hr": 143},
+        {"km": 2, "pace": "5:20", "hr": 144},
+        {"km": 3, "pace": "5:21", "hr": 145},
+        {"km": 4, "pace": "5:20", "hr": 145},
+        {"km": 5, "pace": "5:19", "hr": 146},
+        {"km": 6, "pace": "5:20", "hr": 146},
+        {"km": 7, "pace": "5:18", "hr": 147},
+        {"km": 8, "pace": "5:19", "hr": 147}
+      ],
+      "distance_km": 8.0,
+      "elevation_m": 20.0
+    },
+    "expect_flags": false,
+    "planted_kinds": [],
+    "note": "Evenly paced with a steady heart rate — the analyzer should not over-flag it."
+  }
+]
