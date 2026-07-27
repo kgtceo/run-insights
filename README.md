@@ -65,6 +65,9 @@ python evals/run_evals.py --judge     # also an opus faithfulness / safety judge
 - **Grounding** — every pace / HR / % in the drafted feedback is a computed fact.
 - **Judge** — opus scores faithfulness (invents no stat), usefulness, and safety (no medical advice).
 
+Every run writes a **reproducible artifact** to [`evals/results/latest.json`](evals/results/latest.json)
+— per-case flags, grounding, judge scores, the models used, and a timestamp. The numbers below come from it.
+
 **Latest run (claude-sonnet-4-6, opus judge):** all gates pass — every planted pattern is flagged
 (positive-split + fade, HR decoupling), clean runs aren't over-flagged, every pace/HR/% in the
 feedback is a computed fact (no invented stat), and the opus judge scores **faithfulness / usefulness

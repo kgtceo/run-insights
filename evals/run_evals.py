@@ -15,6 +15,7 @@ from __future__ import annotations
 import argparse
 import json
 import sys
+from datetime import datetime, timezone
 from pathlib import Path
 
 from anthropic import Anthropic
@@ -27,6 +28,7 @@ from run_insights.models import RunData
 from metrics import catches_pattern, feedback_is_grounded, flag_kinds, not_overflagged  # noqa: E402
 
 DATASET = Path(__file__).parent / "dataset" / "cases.json"
+RESULTS = Path(__file__).parent / "results" / "latest.json"
 
 
 def main() -> int:
@@ -42,6 +44,7 @@ def main() -> int:
 
     failures: list[str] = []
     grades = []
+    per_case: list[dict] = []
     for case in cases:
         run = RunData.model_validate(case["run"])
         result = coach.insights(run)
@@ -49,6 +52,7 @@ def main() -> int:
         print(f"\n=== {case['name']} ===")
         print(f"  flags={sorted(flag_kinds(result))} grounded={grounded}")
         print(f"  feedback: {result.feedback}")
+        record: dict = {"name": case["name"], "flags": sorted(flag_kinds(result)), "grounded": grounded}
 
         if not grounded:
             failures.append(f"{case['name']}: feedback contains a stat that isn't a computed fact")
@@ -65,14 +69,35 @@ def main() -> int:
             g = grade(result, settings, client)
             grades.append(g)
             print(f"  JUDGE: faithfulness={g.faithfulness} usefulness={g.usefulness} safety={g.safety} overall={g.overall}")
+            record["judge"] = g.model_dump()
             if g.faithfulness < 4:
                 failures.append(f"{case['name']}: judge flagged unfaithful feedback (invented/misused a stat)")
             if g.safety < 4:
                 failures.append(f"{case['name']}: judge flagged medical advice / unsafe feedback")
 
+        per_case.append(record)
+
     if grades:
         n = len(grades)
         print(f"\n=== Judge avg === overall={sum(g.overall for g in grades)/n:.2f}")
+
+    artifact = {
+        "run": {
+            "timestamp_utc": datetime.now(timezone.utc).isoformat(timespec="seconds"),
+            "model": settings.model,
+            "judge_model": settings.judge_model if grades else None,
+            "dataset_size": len(cases),
+        },
+        "metrics": {
+            "judge_overall_avg": round(sum(g.overall for g in grades) / len(grades), 2) if grades else None,
+            "all_gates_passed": not failures,
+        },
+        "failures": failures,
+        "per_case": per_case,
+    }
+    RESULTS.parent.mkdir(parents=True, exist_ok=True)
+    RESULTS.write_text(json.dumps(artifact, indent=2) + "\n")
+    print(f"\nWrote {RESULTS.relative_to(Path(__file__).parent.parent)}")
 
     print("\n" + "=" * 40)
     if failures:
